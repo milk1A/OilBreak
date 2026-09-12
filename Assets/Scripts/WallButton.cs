@@ -83,6 +83,7 @@ public class WallButton : MonoBehaviour
             return;
 
         isPressed = true;
+        GameAudio.Play(GameSound.PlatePress);
 
         Debug.Log(
             "버튼 활성화: " +

@@ -25,14 +25,6 @@ public class BoxPickUp : MonoBehaviour
     [Tooltip("마우스 휠 거리 변화량")]
     [SerializeField] private float scrollSpeed = 0.5f;
 
-    [Header("Placement")]
-    [SerializeField] private float placementDistance = 10f;
-
-    [Tooltip("클릭한 위치보다 얼마나 위에서 떨어질지")]
-    [SerializeField] private float dropStartHeight = 1f;
-
-    [SerializeField] private LayerMask placementMask = ~0;
-
     [Header("Landing Detection")]
     [Tooltip("박스가 착지할 수 있는 바닥/장애물 Layer")]
     [SerializeField] private LayerMask landingMask = ~0;
@@ -241,6 +233,7 @@ public class BoxPickUp : MonoBehaviour
             return;
 
         heldRigidbody = target;
+        GameAudio.Play(GameSound.Pickup);
 
         // 박스를 집을 때마다 거리 초기화
         holdDistance = defaultHoldDistance;
@@ -350,28 +343,10 @@ public class BoxPickUp : MonoBehaviour
             return;
 
         Rigidbody box = heldRigidbody;
+        GameAudio.Play(GameSound.PutDown);
         Collider[] boxColliders = heldColliders;
 
-        Ray ray = GetMouseRay();
-
-        // 커서가 가리키는 위치 탐색
-        if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            placementDistance,
-            placementMask,
-            QueryTriggerInteraction.Ignore))
-        {
-            // 클릭한 곳의 X/Z 위치로 이동시키되
-            // 약간 위에서 떨어지게 함
-            Vector3 dropPosition =
-                hit.point +
-                Vector3.up * dropStartHeight;
-
-            box.position = dropPosition;
-        }
-
-        // 이제 더 이상 들고 있는 상태가 아님
+        // Release from the current held position without moving to the cursor target.
         heldRigidbody = null;
         heldColliders = null;
 
@@ -477,6 +452,7 @@ public class BoxPickUp : MonoBehaviour
 
 
                 Physics.SyncTransforms();
+                GameAudio.PlayBlockedIfTrap(groundHit.collider);
 
 
                 // 일반 물리 상태

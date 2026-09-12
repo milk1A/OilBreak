@@ -129,6 +129,7 @@ public class LaunchPad : MonoBehaviour
         Transform player)
     {
         isLaunching = true;
+        GameAudio.Play(GameSound.PlatePress);
 
         CharacterController controller =
             player.GetComponent<CharacterController>();
@@ -216,6 +217,7 @@ public class LaunchPad : MonoBehaviour
         Rigidbody box)
     {
         isLaunching = true;
+        GameAudio.Play(GameSound.PlatePress);
 
         box.linearVelocity =
             Vector3.zero;

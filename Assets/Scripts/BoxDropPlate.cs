@@ -77,6 +77,8 @@ public class BoxDropPlate : MonoBehaviour
         Vector3 spawnPosition = player.position + forward * forwardDistance + Vector3.up * dropHeight;
 
         activated = true;
+        GameAudio.Play(GameSound.PlatePress);
+        GameAudio.Play(GameSound.TrapAppear);
         fallingBox.position = spawnPosition;
         fallingBox.transform.position = spawnPosition;
         fallingBox.gameObject.SetActive(true);

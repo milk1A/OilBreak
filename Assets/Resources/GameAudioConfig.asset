@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7503d146124b848ab58999835ea059, type: 3}
+  m_Name: GameAudioConfig
+  m_EditorClassIdentifier:
+  scenes:
+  - sceneName: Stage_1
+    clip: {fileID: 8300000, guid: 430762c362fda4148b2be9997a6ba45d, type: 3}
+  - sceneName: Test2
+    clip: {fileID: 8300000, guid: b48bfd17c48b6704dbca95764027188c, type: 3}
+  - sceneName: BossScene
+    clip: {fileID: 8300000, guid: d27464c608920f64fb3d031ca45884f8, type: 3}
+  musicVolume: 0.35
+  effectsVolume: 0.8
+  stageStart: {fileID: 8300000, guid: 7773298842836184994715543c8ed4e7, type: 3}
+  pickup: {fileID: 8300000, guid: 9086ff81b295b1140bad1e8f567ac925, type: 3}
+  putDown: {fileID: 8300000, guid: 6f744f8dc552b764e865db52b9e247d4, type: 3}
+  portal: {fileID: 8300000, guid: 8bc50a7d16128b448bae1950f8d6b2cb, type: 3}
+  trapAppear: {fileID: 8300000, guid: dab5334538c1bd646b6d4c82d03ff08e, type: 3}
+  platePress: {fileID: 8300000, guid: 13923f00701444e40b3d61d198f1656f, type: 3}
+  trapBlocked: {fileID: 8300000, guid: bb8e9aaf230e18d47ad958f33f870372, type: 3}

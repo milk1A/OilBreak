@@ -25,6 +25,7 @@ public class SimplePortalExit : MonoBehaviour
         }
 
         isLoading = true;
+        GameAudio.Play(GameSound.Portal);
 
         Debug.Log(
             "포탈 진입 -> 다음 씬 이동: " +

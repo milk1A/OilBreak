@@ -103,6 +103,7 @@ public class PressurePlate : MonoBehaviour
             return;
 
         activated = true;
+        GameAudio.Play(GameSound.PlatePress);
 
         Debug.Log("발판 활성화!");
 

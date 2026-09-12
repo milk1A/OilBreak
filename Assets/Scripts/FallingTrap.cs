@@ -94,6 +94,7 @@ public class FallingTrap : MonoBehaviour
 
         // 여기서 실제로 보이게 함
         SetVisible(true);
+        GameAudio.Play(GameSound.TrapAppear);
 
         if (fallingCollider != null)
         {

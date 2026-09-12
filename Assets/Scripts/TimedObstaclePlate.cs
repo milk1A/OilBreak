@@ -42,6 +42,7 @@ public class TimedObstaclePlate : MonoBehaviour
         if (occupied && !wasOccupied && !isOpen)
         {
             isOpen = true;
+            GameAudio.Play(GameSound.PlatePress);
             closeTime = Time.time + Mathf.Max(0.01f, openDuration);
             obstacle.SetActive(false);
         }

@@ -43,6 +43,14 @@ public class BossChaser : MonoBehaviour
     private bool lockYPosition = true;
 
 
+    [Header("Player Chase Speed")]
+    [SerializeField] private StarterAssets.ThirdPersonController playerMovement;
+    [SerializeField, Min(1f)] private float playerSpeedMultiplier = 1.25f;
+
+    private float originalMoveSpeed;
+    private float originalSprintSpeed;
+    private bool speedBoostApplied;
+
     private bool chaseActive = false;
     private bool playerCaught = false;
 
@@ -87,6 +95,7 @@ public class BossChaser : MonoBehaviour
         }
 
         chaseActive = false;
+        RestorePlayerSpeed();
         playerCaught = false;
         speedTimer = 0f;
     }
@@ -164,6 +173,7 @@ public class BossChaser : MonoBehaviour
             return;
 
         chaseActive = true;
+        ApplyPlayerSpeedBoost();
         playerCaught = false;
 
         speedTimer = 0f;
@@ -181,6 +191,7 @@ public class BossChaser : MonoBehaviour
     public void StopChase()
     {
         chaseActive = false;
+        RestorePlayerSpeed();
 
         if (aiPath != null)
         {
@@ -245,6 +256,7 @@ public class BossChaser : MonoBehaviour
 
         playerCaught = true;
         chaseActive = false;
+        RestorePlayerSpeed();
 
 
         // 보스 즉시 정지
@@ -262,5 +274,47 @@ public class BossChaser : MonoBehaviour
 
             gameOverController.RestartScene();
         }
+    }
+    private void ApplyPlayerSpeedBoost()
+    {
+        if (speedBoostApplied) return;
+
+        if (playerMovement == null && player != null)
+        {
+            playerMovement = player.GetComponent<StarterAssets.ThirdPersonController>();
+            if (playerMovement == null)
+                playerMovement = player.GetComponentInChildren<StarterAssets.ThirdPersonController>();
+            if (playerMovement == null)
+                playerMovement = player.GetComponentInParent<StarterAssets.ThirdPersonController>();
+        }
+
+        if (playerMovement == null)
+        {
+            Debug.LogWarning("Assign the player's ThirdPersonController to BossChaser for the chase speed boost.", this);
+            return;
+        }
+
+        originalMoveSpeed = playerMovement.MoveSpeed;
+        originalSprintSpeed = playerMovement.SprintSpeed;
+        float multiplier = Mathf.Max(1f, playerSpeedMultiplier);
+        playerMovement.MoveSpeed = originalMoveSpeed * multiplier;
+        playerMovement.SprintSpeed = originalSprintSpeed * multiplier;
+        speedBoostApplied = true;
+    }
+
+    private void RestorePlayerSpeed()
+    {
+        if (!speedBoostApplied) return;
+        if (playerMovement != null)
+        {
+            playerMovement.MoveSpeed = originalMoveSpeed;
+            playerMovement.SprintSpeed = originalSprintSpeed;
+        }
+        speedBoostApplied = false;
+    }
+
+    private void OnDisable()
+    {
+        StopChase();
     }
 }

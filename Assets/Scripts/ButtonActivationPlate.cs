@@ -96,6 +96,7 @@ public class ButtonActivationPlate : MonoBehaviour
             return;
 
         activated = true;
+        GameAudio.Play(GameSound.PlatePress);
 
         if (wallButton != null)
         {
