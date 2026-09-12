@@ -14,11 +14,20 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BossScene.unity
     guid: 4c9fd9acc1425934386ef1e592900e73
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Stage1.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Stage2.unity
     guid: 02718fb278fdecb4eb77dd65d66a6f1f
+  - enabled: 1
+    path: Assets/Scenes/Start_S.unity
+    guid: 9cf00f43e4d781f499a3ba68d8d5ee4d
+  - enabled: 1
+    path: Assets/Scenes/Ending_S.unity
+    guid: 5e3783b22d9aab946a7935cde9a42602
+  - enabled: 1
+    path: Assets/Scenes/Stage_1.unity
+    guid: 23f77549465566c43a79356b10f51185
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
