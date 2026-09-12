@@ -1,117 +1,98 @@
-using UnityEngine;
+癤퓎sing UnityEngine;
 
+[RequireComponent(typeof(BoxCollider))]
 public class SubtitleSpeaker : MonoBehaviour
 {
     [Header("Subtitle")]
-
     [TextArea(2, 5)]
     [SerializeField] private string subtitleMessage;
-
-    [Tooltip("자막이 화면에 표시되는 시간")]
-    [SerializeField] private float displayDuration = 2f;
-
+    [SerializeField, Min(0.01f)] private float displayDuration = 2f;
 
     [Header("Detection")]
-
-    [Tooltip("플레이어가 이 거리 안으로 들어오면 자막 출력")]
-    [SerializeField] private float detectionDistance = 5f;
-
+    [SerializeField] private BoxCollider detectionCollider;
 
     [Header("References")]
-
-    [SerializeField] private Transform player;
     [SerializeField] private SubtitleUI subtitleUI;
 
-
     [Header("Settings")]
-
-    [Tooltip("체크하면 한 번만 자막이 나옵니다.")]
     [SerializeField] private bool oneShot = true;
 
+    private bool hasPlayed;
+    private bool wasOccupied;
 
-    private bool hasPlayed = false;
-
+    private void Awake()
+    {
+        if (detectionCollider == null)
+            detectionCollider = GetComponent<BoxCollider>();
+    }
 
     private void Start()
     {
-        // Player 자동 검색
-        if (player == null)
-        {
-            GameObject playerObject =
-                GameObject.FindGameObjectWithTag("Player");
-
-            if (playerObject != null)
-            {
-                player = playerObject.transform;
-            }
-        }
-
-
-        // SubtitleUI 자동 검색
         if (subtitleUI == null)
-        {
-            subtitleUI =
-                FindFirstObjectByType<SubtitleUI>();
-        }
+            subtitleUI = FindFirstObjectByType<SubtitleUI>();
     }
-
 
     private void Update()
     {
-        if (player == null)
-            return;
-
         if (oneShot && hasPlayed)
             return;
 
-
-        // 플레이어와 스피커 사이 거리
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                player.position
-            );
-
-
-        // 감지 거리 안으로 들어오면
-        if (distance <= detectionDistance)
-        {
+        bool occupied = IsPlayerTouchingBox();
+        // Display on entry only, so remaining inside does not reset the timer.
+        if (occupied && !wasOccupied)
             ShowSubtitle();
-        }
+
+        wasOccupied = occupied;
     }
 
+    private bool IsPlayerTouchingBox()
+    {
+        if (detectionCollider == null || !detectionCollider.enabled ||
+            !detectionCollider.gameObject.activeInHierarchy)
+            return false;
+
+        Transform boxTransform = detectionCollider.transform;
+        Vector3 scale = boxTransform.lossyScale;
+        scale = new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+        Vector3 halfSize = Vector3.Scale(detectionCollider.size, scale) * 0.5f;
+        Vector3 center = boxTransform.TransformPoint(detectionCollider.center);
+
+        // Works with CharacterController without requiring a Rigidbody on the speaker.
+        Collider[] hits = Physics.OverlapBox(center, halfSize,
+            boxTransform.rotation, ~0, QueryTriggerInteraction.Collide);
+
+        foreach (Collider hit in hits)
+        {
+            if (hit == detectionCollider)
+                continue;
+
+            Transform current = hit.transform;
+            while (current != null)
+            {
+                if (current.CompareTag("Player"))
+                    return true;
+
+                current = current.parent;
+            }
+        }
+
+        return false;
+    }
 
     private void ShowSubtitle()
     {
-        if (oneShot && hasPlayed)
+        if (subtitleUI == null)
+        {
+            Debug.LogWarning("Assign SubtitleUI to SubtitleSpeaker.", this);
             return;
-
+        }
 
         hasPlayed = true;
-
-
-        if (subtitleUI != null)
-        {
-            subtitleUI.ShowSubtitle(
-                subtitleMessage,
-                displayDuration
-            );
-        }
-        else
-        {
-            Debug.LogWarning(
-                "SubtitleUI를 찾을 수 없습니다."
-            );
-        }
+        subtitleUI.ShowSubtitle(subtitleMessage, displayDuration);
     }
 
-
-    // Scene 창에서 감지 거리 확인
-    private void OnDrawGizmosSelected()
+    private void OnDisable()
     {
-        Gizmos.DrawWireSphere(
-            transform.position,
-            detectionDistance
-        );
+        wasOccupied = false;
     }
 }
