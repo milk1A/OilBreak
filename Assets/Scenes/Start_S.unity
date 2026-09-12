@@ -238,7 +238,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3940f55e08182814a8eb90a4831299c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  firstSceneName: Stage_1
+  firstSceneName: tutorial
+  startScreenSceneName: Start_S
 --- !u!1 &648281379
 GameObject:
   m_ObjectHideFlags: 0

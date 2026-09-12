@@ -5,6 +5,22 @@ public class ButtonPuzzleManager : MonoBehaviour
     [Header("Button Settings")]
     [SerializeField] private int requiredButtonCount = 4;
 
+    [Header("Button Progress UI")]
+    [SerializeField] private GameObject buttonCountText;
+
+    private void UpdateButtonCountText()
+    {
+        if (buttonCountText == null) return;
+        string message = "버튼: " + pressedButtonCount + " / " + requiredButtonCount;
+        var tmp = buttonCountText.GetComponent<TMPro.TMP_Text>();
+        if (tmp != null) tmp.text = message;
+        else
+        {
+            var text = buttonCountText.GetComponent<UnityEngine.UI.Text>();
+            if (text != null) text.text = message;
+        }
+    }
+
     [Header("Portal")]
     [SerializeField] private GameObject portalObject;
 
@@ -25,6 +41,7 @@ public class ButtonPuzzleManager : MonoBehaviour
     {
         pressedButtonCount = 0;
         puzzleCompleted = false;
+        UpdateButtonCountText();
 
         if (portalObject != null)
         {
@@ -38,6 +55,7 @@ public class ButtonPuzzleManager : MonoBehaviour
             return;
 
         pressedButtonCount++;
+        UpdateButtonCountText();
 
         Debug.Log(
             "버튼: " +

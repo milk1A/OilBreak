@@ -15,6 +15,11 @@ public class WallButton : MonoBehaviour
     [SerializeField] private Transform buttonVisual;
     [SerializeField] private float pressDepth = 0.08f;
 
+    [Header("Pressed Color")]
+    [SerializeField] private Color pressedColor = Color.green;
+    [Tooltip("Leave empty to color the renderers under Button Visual.")]
+    [SerializeField] private Renderer[] buttonRenderers;
+
     private bool isPressed = false;
 
     private Vector3 originalLocalPosition;
@@ -51,6 +56,8 @@ public class WallButton : MonoBehaviour
 
     private void TryPressButton()
     {
+        if (playerCamera == null) return;
+
         Vector2 mousePosition =
             Mouse.current.position.ReadValue();
 
@@ -83,6 +90,7 @@ public class WallButton : MonoBehaviour
             return;
 
         isPressed = true;
+        ApplyPressedColor();
         GameAudio.Play(GameSound.PlatePress);
 
         Debug.Log(
@@ -101,6 +109,28 @@ public class WallButton : MonoBehaviour
         if (puzzleManager != null)
         {
             puzzleManager.RegisterButtonPress();
+        }
+    }
+    private void ApplyPressedColor()
+    {
+        if (buttonRenderers == null || buttonRenderers.Length == 0)
+        {
+            Transform visual = buttonVisual != null ? buttonVisual : transform;
+            buttonRenderers = visual.GetComponentsInChildren<Renderer>(true);
+        }
+
+        var properties = new MaterialPropertyBlock();
+        foreach (Renderer renderer in buttonRenderers)
+        {
+            if (renderer == null) continue;
+            for (int i = 0; i < renderer.sharedMaterials.Length; i++)
+            {
+                properties.Clear();
+                renderer.GetPropertyBlock(properties, i);
+                properties.SetColor("_BaseColor", pressedColor);
+                properties.SetColor("_Color", pressedColor);
+                renderer.SetPropertyBlock(properties, i);
+            }
         }
     }
 }

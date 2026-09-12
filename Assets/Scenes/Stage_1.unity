@@ -1411,11 +1411,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 223004052}
   m_SourcePrefab: {fileID: 100100000, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
---- !u!4 &223004047 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8338988566280778637, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
-  m_PrefabInstance: {fileID: 223004046}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &223004048 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3893294197879345259, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
@@ -1720,7 +1715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.22
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1925,7 +1920,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.44
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3149,7 +3144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.44
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3885,7 +3880,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.22
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4780,7 +4775,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.44
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4881,16 +4876,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6f61360e0bb0fd4bb938369a9cc4660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MouseOrbitCamera
-  target: {fileID: 223004047}
+  target: {fileID: 223004048}
   distance: 4
   mouseSensitivity: 0.15
+  limitRotation: 0
+  maximumYawFromStart: 75
   followSmooth: 15
   collisionMask:
     serializedVersion: 2
     m_Bits: 8
+  checkAllWallLayers: 1
   cameraRadius: 0.25
   wallOffset: 0.15
   minDistance: 0.5
+  cameraBounds: {fileID: 0}
 --- !u!114 &1390187500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5663,7 +5662,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.22
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
@@ -7482,7 +7481,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.548
+      value: -0.22
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 1a5dcf5c28e4b4049941bd2c8cb7b878, type: 3}
       propertyPath: m_LocalPosition.z
