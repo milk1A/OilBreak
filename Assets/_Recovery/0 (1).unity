@@ -3892,6 +3892,7 @@ MonoBehaviour:
   mouseSensitivity: 0.15
   fixedPitch: 15
   followSmooth: 15
+  allowVerticalLook: 1
 --- !u!114 &970286015
 MonoBehaviour:
   m_ObjectHideFlags: 0

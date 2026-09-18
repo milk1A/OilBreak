@@ -83,6 +83,7 @@ public class BoxDropPlate : MonoBehaviour
         fallingBox.transform.position = spawnPosition;
         fallingBox.gameObject.SetActive(true);
         fallingBox.isKinematic = false;
+        fallingBox.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         fallingBox.useGravity = true;
         fallingBox.linearVelocity = Vector3.zero;
         fallingBox.angularVelocity = Vector3.zero;

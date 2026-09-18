@@ -42,7 +42,7 @@ public class WallButton : MonoBehaviour
 
     private void Update()
     {
-        if (isPressed)
+        if (isPressed || !CenterAimController.CanInteract(playerCamera))
             return;
 
         if (Mouse.current == null)
@@ -54,39 +54,27 @@ public class WallButton : MonoBehaviour
         }
     }
 
+    public bool CanPressFrom(Camera camera)
+    {
+        if (!isActiveAndEnabled || isPressed || camera == null ||
+            camera != playerCamera || !CenterAimController.CanInteract(camera))
+            return false;
+
+        Ray ray = CenterAimController.GetAimRay(camera);
+        return CenterAimController.TryGetAimHit(ray, interactionDistance, out RaycastHit hit) &&
+            hit.collider.GetComponentInParent<WallButton>() == this;
+    }
+
     private void TryPressButton()
     {
-        if (playerCamera == null) return;
-
-        Vector2 mousePosition =
-            Mouse.current.position.ReadValue();
-
-        Ray ray =
-            playerCamera.ScreenPointToRay(
-                mousePosition
-            );
-
-        if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            interactionDistance,
-            ~0,
-            QueryTriggerInteraction.Ignore))
-        {
-            // 클릭한 Collider가 이 버튼 자신 또는 자식인지 확인
-            WallButton clickedButton =
-                hit.collider.GetComponentInParent<WallButton>();
-
-            if (clickedButton != this)
-                return;
-
+        // Require the displayed green target and revalidate range/occlusion on click.
+        if (CenterAimController.IsHighlightedButton(playerCamera, this) && CanPressFrom(playerCamera))
             PressButton();
-        }
     }
 
     private void PressButton()
     {
-        if (isPressed)
+        if (isPressed || !CenterAimController.CanInteract(playerCamera))
             return;
 
         isPressed = true;

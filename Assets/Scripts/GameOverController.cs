@@ -18,6 +18,7 @@ public class GameOverController : MonoBehaviour
     [SerializeField] private float gameOverDelay = 2f;
 
     private bool isPlayerLocked = false;
+    public bool IsPlayerLocked => isPlayerLocked;
     private bool isGameOverStarted = false;
     private bool isRestarting = false;
 

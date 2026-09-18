@@ -120,6 +120,7 @@ public class BoxPickUp : MonoBehaviour
 
     private void Update()
     {
+        if (!CenterAimController.CanInteract(playerCamera)) return;
         if (IsHolding)
         {
             HandleMouseWheel();
@@ -147,85 +148,33 @@ public class BoxPickUp : MonoBehaviour
 
     private Ray GetMouseRay()
     {
-        if (playerCamera == null)
-        {
-            return new Ray(
-                transform.position,
-                transform.forward
-            );
-        }
-
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
-            Vector2 screenCenter =
-                new Vector2(
-                    Screen.width * 0.5f,
-                    Screen.height * 0.5f
-                );
-
-            return playerCamera.ScreenPointToRay(
-                screenCenter
-            );
-        }
-
-        if (Mouse.current != null)
-        {
-            Vector2 mousePosition =
-                Mouse.current.position.ReadValue();
-
-            return playerCamera.ScreenPointToRay(
-                mousePosition
-            );
-        }
-        // ggg
-
-        return new Ray(
-            playerCamera.transform.position,
-            playerCamera.transform.forward
-        );
+        return CenterAimController.GetAimRay(playerCamera);
     }
 
+    public bool UsesCamera(Camera camera) => playerCamera == camera;
 
-    // =====================================================
-    // Pickup
-    // =====================================================
+    public bool TryGetPickupTarget(out Rigidbody target)
+    {
+        target = null;
+        if (!isActiveAndEnabled || IsHolding || !CenterAimController.CanInteract(playerCamera))
+            return false;
+
+        Ray ray = GetMouseRay();
+        if (!CenterAimController.TryGetAimHit(ray, pickupDistance, out RaycastHit hit) ||
+            ((1 << hit.collider.gameObject.layer) & pickupMask.value) == 0)
+            return false;
+
+        Transform pickupTransform = FindParentWithTag(hit.collider.transform, "PickupBox");
+        if (pickupTransform == null) return false;
+        target = pickupTransform.GetComponent<Rigidbody>();
+        if (target == null) target = pickupTransform.GetComponentInParent<Rigidbody>();
+        return target != null;
+    }
 
     private void TryPickupBox()
     {
-        Ray ray = GetMouseRay();
-
-        if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            pickupDistance,
-            pickupMask,
-            QueryTriggerInteraction.Ignore))
-        {
-            Transform pickupTransform =
-                FindParentWithTag(
-                    hit.collider.transform,
-                    "PickupBox"
-                );
-
-            if (pickupTransform == null)
-                return;
-
-            Rigidbody targetRb =
-                pickupTransform.GetComponent<Rigidbody>();
-
-            if (targetRb == null)
-            {
-                targetRb =
-                    pickupTransform.GetComponentInParent<Rigidbody>();
-            }
-
-            if (targetRb == null)
-                return;
-
-            PickupBox(targetRb);
-        }
+        if (TryGetPickupTarget(out Rigidbody target)) PickupBox(target);
     }
-
 
     private void PickupBox(Rigidbody target)
     {

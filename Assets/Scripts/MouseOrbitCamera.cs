@@ -5,9 +5,17 @@ public class MouseOrbitCamera : MonoBehaviour
 {
     [Header("Target")]
     [SerializeField] private Transform target;
+    [Tooltip("Use upper-body height when Target itself has a CharacterController.")]
+    [SerializeField] private bool usePlayerBodyHeight = true;
+    [Tooltip("Additional world-space height above the target or body pivot.")]
+    [SerializeField] private float targetHeightOffset = 0f;
     [Header("Camera Settings")]
     [SerializeField] private float distance = 4f;
     [SerializeField] private float mouseSensitivity = 0.15f;
+    [Header("Vertical Look")]
+    [SerializeField] private bool allowVerticalLook = true;
+    [SerializeField, Range(0f, 85f)] private float fixedPitch = 45f;
+    [SerializeField, Range(0f, 85f)] private float maximumPitch = 60f;
     [Header("Optional Rotation Limit")]
     [SerializeField] private bool limitRotation;
     [SerializeField, Range(0f, 180f)] private float maximumYawFromStart = 75f;
@@ -25,46 +33,71 @@ public class MouseOrbitCamera : MonoBehaviour
     [SerializeField] private BoxCollider cameraBounds;
 
     private float yaw;
+    private float pitch;
     private Camera viewCamera;
     private float startingYaw;
-    private bool cursorWasInside;
+    private bool positionInitialized;
+    private float currentDistance;
+    private CameraPlayerVisibility playerVisibility;
 
     private void Start()
     {
         yaw = transform.eulerAngles.y;
+        pitch = Mathf.Clamp(Mathf.DeltaAngle(0f, transform.eulerAngles.x), 0f, maximumPitch);
         startingYaw = yaw;
         viewCamera = GetComponent<Camera>();
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        playerVisibility = GetComponent<CameraPlayerVisibility>();
+        if (playerVisibility == null) playerVisibility = gameObject.AddComponent<CameraPlayerVisibility>();
+        if (viewCamera != null && GetComponent<CenterAimController>() == null)
+            gameObject.AddComponent<CenterAimController>();
+        if (!allowVerticalLook) pitch = fixedPitch;
     }
 
     private void LateUpdate()
     {
-        if (target == null) return;
-        bool cursorInside = IsCursorInsideGame();
-        if (cursorInside && cursorWasInside &&
-            !(UnityEngine.EventSystems.EventSystem.current != null &&
-              UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()))
-            yaw += Mouse.current.delta.ReadValue().x * mouseSensitivity;
-        cursorWasInside = cursorInside;
+        if (target == null)
+        {
+            if (playerVisibility != null) playerVisibility.Restore();
+            return;
+        }
+        if (CenterAimController.CanInteract(viewCamera) && Mouse.current != null)
+        {
+            Vector2 delta = Mouse.current.delta.ReadValue();
+            yaw += delta.x * mouseSensitivity;
+            if (allowVerticalLook)
+                pitch = Mathf.Clamp(pitch - delta.y * mouseSensitivity, 0f, maximumPitch);
+        }
+        if (!allowVerticalLook) pitch = fixedPitch;
 
         if (limitRotation)
             yaw = startingYaw + Mathf.Clamp(Mathf.DeltaAngle(startingYaw, yaw),
                 -maximumYawFromStart, maximumYawFromStart);
 
-        Quaternion rotation = Quaternion.Euler(0f, yaw, 0f);
-        Vector3 pivot = target.position;
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 pivot = GetPivotPosition();
         Vector3 desired = pivot - rotation * Vector3.forward * Mathf.Max(minDistance, distance);
         float radius = EffectiveRadius();
         desired = ClampToMap(desired, radius);
         desired = ConstrainPosition(pivot, desired, radius);
 
-        Vector3 smoothed = Vector3.Lerp(transform.position, desired,
-            Mathf.Clamp01(followSmooth * Time.deltaTime));
-        // Smoothing around corners can put the camera behind a wall again.
-        // Recheck the actual rendered position, and move inward immediately.
-        transform.position = ConstrainPosition(pivot, ClampToMap(smoothed, radius), radius);
+        Vector3 offset = desired - pivot;
+        float safeDistance = offset.magnitude;
+        Vector3 direction = safeDistance > 0.0001f
+            ? offset / safeDistance
+            : -(rotation * Vector3.forward);
+
+        // Move inward immediately for walls, but ease outward when space opens.
+        // Smooth only the distance: position interpolation cuts across corners.
+        if (!positionInitialized || safeDistance < currentDistance)
+            currentDistance = safeDistance;
+        else
+            currentDistance = Mathf.Lerp(currentDistance, safeDistance,
+                1f - Mathf.Exp(-Mathf.Max(0f, followSmooth) * Time.deltaTime));
+
+        positionInitialized = true;
+        transform.position = pivot + direction * currentDistance;
         transform.rotation = rotation;
+        playerVisibility.UpdateVisibility(target, transform.position, EffectiveRadius());
     }
 
     private float EffectiveRadius()
@@ -77,28 +110,22 @@ public class MouseOrbitCamera : MonoBehaviour
         return Mathf.Max(radius, Mathf.Sqrt(near * near + halfHeight * halfHeight + halfWidth * halfWidth));
     }
 
-    private bool IsCursorInsideGame()
+    private Vector3 GetPivotPosition()
     {
-        if (!Application.isFocused || Mouse.current == null) return false;
-#if UNITY_EDITOR
-        // A focused Game view may still receive mouse input outside its tab.
-        UnityEditor.EditorWindow hovered = UnityEditor.EditorWindow.mouseOverWindow;
-        if (hovered == null || hovered.GetType().Name != "GameView") return false;
-#endif
-        Vector2 position = Mouse.current.position.ReadValue();
-        Rect gameRect = new Rect(0f, 0f, Screen.width, Screen.height);
-        if (!gameRect.Contains(position)) return false;
-        return viewCamera == null || viewCamera.pixelRect.Contains(position);
-    }
-
-    private void OnApplicationFocus(bool focused)
-    {
-        if (!focused) cursorWasInside = false;
+        Vector3 pivot = target.position;
+        if (usePlayerBodyHeight && target.TryGetComponent<CharacterController>(out var controller))
+        {
+            // The player root is normally at its feet. Cast from the upper body,
+            // so the floor is not overlapping the camera's collision sphere.
+            pivot = target.TransformPoint(controller.center + Vector3.up * controller.height * 0.25f);
+        }
+        return pivot + Vector3.up * targetHeightOffset;
     }
 
     private void OnDisable()
     {
-        cursorWasInside = false;
+        positionInitialized = false;
+        if (playerVisibility != null) playerVisibility.Restore();
     }
 
     private Vector3 ConstrainPosition(Vector3 pivot, Vector3 candidate, float radius)

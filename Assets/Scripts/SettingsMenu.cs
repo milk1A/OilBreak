@@ -12,6 +12,7 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private string firstSceneName = "Stage1";
 
     private bool isOpen;
+    public bool IsOpen => isOpen;
     private bool isLoading;
     private CursorLockMode previousCursorLock;
     private bool previousCursorVisible;

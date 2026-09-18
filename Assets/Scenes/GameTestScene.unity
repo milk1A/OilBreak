@@ -323,6 +323,7 @@ MonoBehaviour:
   minPitch: -30
   maxPitch: 70
   followSmooth: 15
+  allowVerticalLook: 1
 --- !u!4 &323528273 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8338988566280778637, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
