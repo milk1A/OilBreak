@@ -36,6 +36,12 @@ public class PlayerRespawn : MonoBehaviour
 
     public void Respawn()
     {
+        if (respawnPoint == null)
+        {
+            Debug.LogError("Assign Respawn Point on PlayerRespawn.", this);
+            return;
+        }
+
         // 플레이어가 죽으면 모든 박스 초기화
         if (boxPickUp != null)
         {

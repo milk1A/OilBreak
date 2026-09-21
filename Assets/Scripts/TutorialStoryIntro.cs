@@ -13,13 +13,23 @@ public class TutorialStoryIntro : MonoBehaviour
     [SerializeField] private string storyMessage = "여기에 스토리 설명을 입력하세요.";
     [SerializeField, Min(0f)] private float displayDuration = 5f;
 
+    [Header("Image Cutscene (assign slides to use button navigation)")]
+    [SerializeField] private Image cutsceneImage;
+    [SerializeField] private Sprite[] slides;
+    [SerializeField] private Button nextButton;
+
     private readonly List<Behaviour> pausedBehaviours = new List<Behaviour>();
     private bool introActive;
     private float previousTimeScale;
+    private CursorLockMode previousCursorLock;
+    private bool previousCursorVisible;
+    private int slideIndex;
+    private bool finishing;
+    private bool UsesSlides => slides != null && slides.Length > 0;
 
     private void Awake()
     {
-        if (storyPanel == null || storyText == null || storyPanel == gameObject ||
+        if (storyPanel == null || storyPanel == gameObject ||
             transform.IsChildOf(storyPanel.transform))
         {
             Debug.LogError("Put TutorialStoryIntro on the Canvas and assign a separate Story Panel and Story Text.", this);
@@ -27,8 +37,34 @@ public class TutorialStoryIntro : MonoBehaviour
             return;
         }
 
-        var tmp = storyText.GetComponent<TMPro.TMP_Text>();
-        var text = storyText.GetComponent<Text>();
+        if (UsesSlides)
+        {
+            if (cutsceneImage == null || nextButton == null ||
+                cutsceneImage.gameObject == storyPanel ||
+                !cutsceneImage.transform.IsChildOf(storyPanel.transform) ||
+                !nextButton.transform.IsChildOf(storyPanel.transform) ||
+                System.Array.Exists(slides, slide => slide == null))
+            {
+                Debug.LogError("Assign all Slides, a child Cutscene Image and a child Next Button inside Story Panel.", this);
+                enabled = false;
+                return;
+            }
+            cutsceneImage.gameObject.SetActive(true);
+            cutsceneImage.preserveAspect = true;
+            cutsceneImage.raycastTarget = false;
+            cutsceneImage.sprite = slides[0];
+            nextButton.gameObject.SetActive(true);
+            nextButton.interactable = true;
+            nextButton.transform.SetAsLastSibling();
+            nextButton.onClick.AddListener(NextSlide);
+            if (storyText != null && storyText != storyPanel &&
+                storyText != nextButton.gameObject && !nextButton.transform.IsChildOf(storyText.transform))
+                storyText.SetActive(false);
+        }
+        else
+        {
+        var tmp = storyText != null ? storyText.GetComponent<TMPro.TMP_Text>() : null;
+        var text = storyText != null ? storyText.GetComponent<Text>() : null;
         if (tmp == null && text == null)
         {
             Debug.LogError("Story Text must have Text or TextMeshPro.", this);
@@ -37,12 +73,15 @@ public class TutorialStoryIntro : MonoBehaviour
         }
         if (tmp != null) tmp.text = storyMessage;
         else text.text = storyMessage;
+        }
 
         // Use a dedicated overlay canvas so all existing HUD is covered.
         Canvas overlay = storyPanel.GetComponent<Canvas>();
         if (overlay == null) overlay = storyPanel.AddComponent<Canvas>();
         overlay.overrideSorting = true;
         overlay.sortingOrder = 32767;
+        if (storyPanel.GetComponent<GraphicRaycaster>() == null)
+            storyPanel.AddComponent<GraphicRaycaster>();
         Image background = storyPanel.GetComponent<Image>();
         if (background == null) background = storyPanel.AddComponent<Image>();
         background.color = Color.black;
@@ -54,6 +93,10 @@ public class TutorialStoryIntro : MonoBehaviour
         storyPanel.SetActive(true);
 
         previousTimeScale = Time.timeScale;
+        previousCursorLock = Cursor.lockState;
+        previousCursorVisible = Cursor.visible;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         introActive = true;
         Time.timeScale = 0f;
         foreach (MonoBehaviour behaviour in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
@@ -72,7 +115,29 @@ public class TutorialStoryIntro : MonoBehaviour
 
     private IEnumerator Start()
     {
+        if (UsesSlides) yield break;
         yield return new WaitForSecondsRealtime(displayDuration);
+        FinishIntro();
+    }
+
+    public void NextSlide()
+    {
+        if (!introActive || !UsesSlides || finishing) return;
+        slideIndex++;
+        if (slideIndex < slides.Length)
+            cutsceneImage.sprite = slides[slideIndex];
+        else
+        {
+            finishing = true;
+            nextButton.interactable = false;
+            StartCoroutine(FinishAfterClick());
+        }
+    }
+
+    private IEnumerator FinishAfterClick()
+    {
+        // Keep gameplay paused for the frame in which the UI button was clicked.
+        yield return null;
         FinishIntro();
     }
 
@@ -82,6 +147,9 @@ public class TutorialStoryIntro : MonoBehaviour
         introActive = false;
         if (storyPanel != null) storyPanel.SetActive(false);
         Time.timeScale = previousTimeScale;
+        Cursor.lockState = previousCursorLock;
+        Cursor.visible = previousCursorVisible;
+        if (nextButton != null) nextButton.onClick.RemoveListener(NextSlide);
         foreach (Behaviour behaviour in pausedBehaviours)
             if (behaviour != null) behaviour.enabled = true;
         pausedBehaviours.Clear();

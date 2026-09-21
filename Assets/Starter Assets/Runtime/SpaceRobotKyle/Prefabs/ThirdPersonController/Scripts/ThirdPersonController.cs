@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -156,6 +156,9 @@ namespace StarterAssets
 
         private void Update()
         {
+            if (_controller == null || !_controller.enabled || !_controller.gameObject.activeInHierarchy)
+                return;
+
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();

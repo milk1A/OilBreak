@@ -4852,6 +4852,8 @@ MonoBehaviour:
   targetHeightOffset: 0
   distance: 4
   mouseSensitivity: 0.15
+  allowVerticalLook: 1
+  fixedPitch: 45
   maximumPitch: 60
   limitRotation: 0
   maximumYawFromStart: 75
@@ -4864,7 +4866,6 @@ MonoBehaviour:
   wallOffset: 0.15
   minDistance: 0.5
   cameraBounds: {fileID: 0}
-  allowVerticalLook: 1
 --- !u!114 &1390187500
 MonoBehaviour:
   m_ObjectHideFlags: 0
