@@ -6,6 +6,9 @@ using UnityEngine.UI;
 [DefaultExecutionOrder(-500)]
 public class TutorialStoryIntro : MonoBehaviour
 {
+    [Header("Playback")]
+    [SerializeField] private bool playOnAwake = true;
+    private string destinationScene;
     [Header("Story UI")]
     [SerializeField] private GameObject storyPanel;
     [SerializeField] private GameObject storyText;
@@ -29,6 +32,28 @@ public class TutorialStoryIntro : MonoBehaviour
 
     private void Awake()
     {
+        if (playOnAwake) BeginIntro();
+        else if (storyPanel != null && storyPanel != gameObject &&
+            !transform.IsChildOf(storyPanel.transform)) storyPanel.SetActive(false);
+    }
+
+    public bool PlayBeforeScene(string sceneName)
+    {
+        if (!isActiveAndEnabled || introActive || playOnAwake) return false;
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError("Add the destination scene to the build scene list: " + sceneName, this);
+            return false;
+        }
+        destinationScene = sceneName;
+        BeginIntro();
+        return introActive;
+    }
+
+    private void BeginIntro()
+    {
+        slideIndex = 0;
+        finishing = false;
         if (storyPanel == null || storyPanel == gameObject ||
             transform.IsChildOf(storyPanel.transform))
         {
@@ -111,13 +136,14 @@ public class TutorialStoryIntro : MonoBehaviour
                 behaviour.enabled = false;
             }
         }
+        if (!UsesSlides) StartCoroutine(TimedIntro());
     }
 
-    private IEnumerator Start()
+    private IEnumerator TimedIntro()
     {
         if (UsesSlides) yield break;
         yield return new WaitForSecondsRealtime(displayDuration);
-        FinishIntro();
+        CompleteIntro();
     }
 
     public void NextSlide()
@@ -138,7 +164,16 @@ public class TutorialStoryIntro : MonoBehaviour
     {
         // Keep gameplay paused for the frame in which the UI button was clicked.
         yield return null;
+        CompleteIntro();
+    }
+
+    private void CompleteIntro()
+    {
+        string scene = destinationScene;
+        destinationScene = null;
         FinishIntro();
+        if (!string.IsNullOrEmpty(scene))
+            UnityEngine.SceneManagement.SceneManager.LoadScene(scene);
     }
 
     private void FinishIntro()

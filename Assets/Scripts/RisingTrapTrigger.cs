@@ -15,6 +15,16 @@ public class RisingTrapTrigger : MonoBehaviour
     private bool triggered;
     private float elapsed;
 
+    public bool HasTriggered => triggered;
+    public Transform TrapRoot => trapRoot;
+
+    public void CompleteRise()
+    {
+        if (!triggered || trapRoot == null) return;
+        trapRoot.position = raisedPosition;
+        enabled = false;
+    }
+
     private void Awake()
     {
         detectionCollider = GetComponent<BoxCollider>();

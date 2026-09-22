@@ -5,6 +5,7 @@ public class SimplePortalExit : MonoBehaviour
 {
     [Header("Next Scene")]
     [SerializeField] private string nextSceneName;
+    [SerializeField] private TutorialStoryIntro exitCutscene;
 
     private bool isLoading = false;
 
@@ -21,6 +22,17 @@ public class SimplePortalExit : MonoBehaviour
             Debug.LogWarning(
                 "다음 씬 이름이 설정되지 않았습니다."
             );
+            return;
+        }
+
+        if (exitCutscene != null)
+        {
+            if (exitCutscene.PlayBeforeScene(nextSceneName))
+            {
+                isLoading = true;
+                GameAudio.Play(GameSound.Portal);
+            }
+            else Debug.LogError("Exit Cutscene could not start. Disable Play On Awake and check its UI references.", this);
             return;
         }
 

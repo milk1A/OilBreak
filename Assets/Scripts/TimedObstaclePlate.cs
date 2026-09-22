@@ -12,6 +12,10 @@ public class TimedObstaclePlate : MonoBehaviour
     [SerializeField] private GameObject obstacle;
     [SerializeField, Min(0.01f)] private float openDuration = 2f;
 
+    [Header("Optional Rising Trap")]
+    [Tooltip("Assign the entry area's RisingTrapTrigger to allow use only after the trap appears.")]
+    [SerializeField] private RisingTrapTrigger risingTrap;
+
     private bool wasOccupied;
     private bool isOpen;
     private float closeTime;
@@ -27,6 +31,11 @@ public class TimedObstaclePlate : MonoBehaviour
             Debug.LogError("Assign an obstacle separate from the TimedObstaclePlate and its parents.", this);
             enabled = false;
         }
+        else if (risingTrap != null && risingTrap.TrapRoot != obstacle.transform)
+        {
+            Debug.LogError("Obstacle and RisingTrapTrigger.TrapRoot must refer to the same trap root.", this);
+            enabled = false;
+        }
     }
 
     private void Update()
@@ -35,16 +44,19 @@ public class TimedObstaclePlate : MonoBehaviour
             return;
 
         if (isOpen && Time.time >= closeTime)
-            RestoreObstacle();
+            RestoreObstacle(true);
 
         bool occupied = IsPlayerOnPlate();
         // Only a new step activates the plate. Standing on it cannot extend the timer.
-        if (occupied && !wasOccupied && !isOpen)
+        if (occupied && !wasOccupied && !isOpen &&
+            (risingTrap == null || risingTrap.HasTriggered))
         {
             isOpen = true;
             GameAudio.Play(GameSound.PlatePress);
             closeTime = Time.time + Mathf.Max(0.01f, openDuration);
             obstacle.SetActive(false);
+            // Finish the rise while hidden so restoration always uses the final position.
+            if (risingTrap != null) risingTrap.CompleteRise();
         }
 
         wasOccupied = occupied;
@@ -80,11 +92,16 @@ public class TimedObstaclePlate : MonoBehaviour
         return false;
     }
 
-    private void RestoreObstacle()
+    private void RestoreObstacle(bool playSound = false)
     {
         isOpen = false;
         if (obstacle != null)
+        {
+            bool wasActive = obstacle.activeInHierarchy;
             obstacle.SetActive(true);
+            if (playSound && !wasActive && obstacle.activeInHierarchy)
+                GameAudio.Play(GameSound.TrapAppear);
+        }
     }
 
     private void OnDisable()
