@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a470cb3c04c479548adb10f4b7e98199
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306813
+  packageName: Boy with gym animations & BlendShape
+  packageVersion: 1.0
+  assetPath: Assets/Boy With Animation/_Script/AnimationDemo.cs
+  uploadId: 721106

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fb038f9c764bfe84798f9c7434e661bb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306813
+  packageName: Boy with gym animations & BlendShape
+  packageVersion: 1.0
+  assetPath: Assets/Boy With Animation/_Animation/T-Pose_01.controller
+  uploadId: 721106

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 91870a1902a7ba045bddfaafb416a45e
+guid: 866891cad5503ce40a7d3ded5c08090e
 DefaultImporter:
   externalObjects: {}
   userData: 
@@ -10,5 +10,5 @@ AssetOrigin:
   productId: 258782
   packageName: House Interior - Free
   packageVersion: 2.0.0
-  assetPath: Assets/nappin/HouseInteriorPack/HouseInteriorPack.unity
+  assetPath: Assets/Wall/nappin/HouseInteriorPack/HouseInteriorPack.unity
   uploadId: 799960
