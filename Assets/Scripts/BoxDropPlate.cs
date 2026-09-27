@@ -3,6 +3,19 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class BoxDropPlate : MonoBehaviour
 {
+    [Header("Aim Button")]
+    [SerializeField] private bool useAimClick = true;
+    [SerializeField] private float interactionDistance = 5f;
+    [SerializeField] private Renderer[] buttonRenderers;
+    [SerializeField] private Color pressedColor = Color.green;
+    private Camera aimCamera;
+    public bool CanPress(Camera camera)
+    {
+        return useAimClick && isActiveAndEnabled && !activated && fallingBox != null &&
+            CenterAimController.CanInteract(camera) &&
+            CenterAimController.TryGetAimHit(CenterAimController.GetAimRay(camera), interactionDistance, out RaycastHit hit) &&
+            hit.collider.GetComponentInParent<BoxDropPlate>() == this;
+    }
     [Header("Detection")]
     [SerializeField] private BoxCollider detectionCollider;
     [SerializeField, Min(0f)] private float extraHeight = 0.5f;
@@ -35,12 +48,25 @@ public class BoxDropPlate : MonoBehaviour
         }
 
         fallingBox.gameObject.SetActive(false);
+        aimCamera = Camera.main;
+        if (useAimClick) detectionCollider.isTrigger = false;
     }
 
     private void Update()
     {
         if (activated || detectionCollider == null || fallingBox == null)
             return;
+
+        if (useAimClick)
+        {
+            if (UnityEngine.InputSystem.Mouse.current != null &&
+                UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame && CanPress(aimCamera))
+            {
+                var playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null) DropBox(playerObject.transform);
+            }
+            return;
+        }
 
         Vector3 scale = detectionCollider.transform.lossyScale;
         scale = new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
@@ -77,6 +103,17 @@ public class BoxDropPlate : MonoBehaviour
         Vector3 spawnPosition = player.position + forward * forwardDistance + Vector3.up * dropHeight;
 
         activated = true;
+        if (buttonRenderers == null || buttonRenderers.Length == 0)
+            buttonRenderers = GetComponentsInChildren<Renderer>();
+        foreach (var renderer in buttonRenderers)
+        {
+            if (renderer == null) continue;
+            var properties = new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(properties);
+            properties.SetColor("_BaseColor", pressedColor);
+            properties.SetColor("_Color", pressedColor);
+            renderer.SetPropertyBlock(properties);
+        }
         GameAudio.Play(GameSound.PlatePress);
         GameAudio.Play(GameSound.TrapAppear);
         fallingBox.position = spawnPosition;
@@ -88,6 +125,9 @@ public class BoxDropPlate : MonoBehaviour
         fallingBox.linearVelocity = Vector3.zero;
         fallingBox.angularVelocity = Vector3.zero;
         fallingBox.WakeUp();
+        var recovery = fallingBox.GetComponent<BoxOutOfBoundsRecovery>();
+        if (recovery == null) recovery = fallingBox.gameObject.AddComponent<BoxOutOfBoundsRecovery>();
+        recovery.RememberDropPosition();
     }
 
     private static Transform FindPlayer(Transform target)

@@ -16,6 +16,7 @@ public class GameAudioConfig : ScriptableObject
     public AudioClip stageStart;
     public AudioClip pickup;
     public AudioClip putDown;
+    public AudioClip wheel;
     public AudioClip portal;
     public AudioClip trapAppear;
     public AudioClip platePress;

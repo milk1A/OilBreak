@@ -44,7 +44,20 @@ public class BoxPickUp : MonoBehaviour
         originalTransforms =
         new Dictionary<Rigidbody, BoxOriginalTransform>();
 
+    public bool TryGetBoxOriginal(Rigidbody box, out Vector3 position, out Quaternion rotation)
+    {
+        if (originalTransforms.TryGetValue(box, out BoxOriginalTransform original))
+        {
+            position = original.position;
+            rotation = original.rotation;
+            return true;
+        }
+        position = default;
+        rotation = Quaternion.identity;
+        return false;
+    }
     private bool IsHolding => heldRigidbody != null;
+    public bool IsHoldingBox(Rigidbody box) => heldRigidbody == box;
 
 
     private struct BoxOriginalTransform
@@ -99,6 +112,9 @@ public class BoxPickUp : MonoBehaviour
 
             if (boxRb == null)
                 continue;
+
+            if (boxRb.GetComponent<BoxOutOfBoundsRecovery>() == null)
+                boxRb.gameObject.AddComponent<BoxOutOfBoundsRecovery>();
 
             if (!originalTransforms.ContainsKey(boxRb))
             {
@@ -343,7 +359,10 @@ public class BoxPickUp : MonoBehaviour
             GetBoxHalfHeight(box);
 
 
-        while (box != null)
+        var recovery = box.GetComponent<BoxOutOfBoundsRecovery>();
+        int recoveryVersion = recovery != null ? recovery.RecoveryVersion : 0;
+
+        while (box != null && (recovery == null || recovery.RecoveryVersion == recoveryVersion))
         {
             // 박스 중심에서 아래로 Ray
             Vector3 rayOrigin =

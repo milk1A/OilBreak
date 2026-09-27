@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum GameSound { Pickup, PutDown, Portal, TrapAppear, PlatePress, TrapBlocked }
+public enum GameSound { Pickup, PutDown, Portal, TrapAppear, PlatePress, TrapBlocked, Wheel }
 
 public class GameAudio : MonoBehaviour
 {
@@ -10,6 +10,19 @@ public class GameAudio : MonoBehaviour
     private GameAudioConfig config;
     private AudioSource music;
     private AudioSource effects;
+    private AudioSource pickupEffects;
+    public static float MusicVolume => PlayerPrefs.GetFloat("MusicVolume", instance != null && instance.config != null ? instance.config.musicVolume : 0.35f);
+    public static float EffectsVolume => PlayerPrefs.GetFloat("EffectsVolume", instance != null && instance.config != null ? instance.config.effectsVolume : 0.8f);
+    public static void SetMusicVolume(float value)
+    {
+        PlayerPrefs.SetFloat("MusicVolume", Mathf.Clamp01(value));
+        if (instance != null) instance.music.volume = MusicVolume;
+    }
+    public static void SetEffectsVolume(float value)
+    {
+        PlayerPrefs.SetFloat("EffectsVolume", Mathf.Clamp01(value));
+        if (instance != null) instance.effects.volume = instance.pickupEffects.volume = EffectsVolume;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() { instance = null; }
@@ -29,6 +42,11 @@ public class GameAudio : MonoBehaviour
         config = Resources.Load<GameAudioConfig>("GameAudioConfig");
         music = gameObject.AddComponent<AudioSource>();
         effects = gameObject.AddComponent<AudioSource>();
+        pickupEffects = gameObject.AddComponent<AudioSource>();
+        pickupEffects.playOnAwake = false;
+        pickupEffects.loop = false;
+        pickupEffects.spatialBlend = 0f;
+        effects.volume = pickupEffects.volume = EffectsVolume;
         music.playOnAwake = effects.playOnAwake = false;
         music.spatialBlend = effects.spatialBlend = 0f;
         music.loop = true;
@@ -49,13 +67,13 @@ public class GameAudio : MonoBehaviour
         // Let the scene's Start methods and camera setup finish first.
         yield return null;
         if (config == null || !scene.isLoaded) yield break;
-        if (config.stageStart != null) effects.PlayOneShot(config.stageStart, config.effectsVolume);
+        if (config.stageStart != null) effects.PlayOneShot(config.stageStart);
         if (config.scenes == null) yield break;
         foreach (var entry in config.scenes)
         {
             if (entry == null || entry.sceneName != scene.name || entry.clip == null) continue;
             music.clip = entry.clip;
-            music.volume = config.musicVolume;
+            music.volume = MusicVolume;
             music.Play();
             break;
         }
@@ -70,13 +88,21 @@ public class GameAudio : MonoBehaviour
         {
             case GameSound.Pickup: clip = c.pickup; break;
             case GameSound.PutDown: clip = c.putDown; break;
+            case GameSound.Wheel: clip = c.wheel; break;
             case GameSound.Portal: clip = c.portal; break;
             case GameSound.TrapAppear: clip = c.trapAppear; break;
             case GameSound.PlatePress: clip = c.platePress; break;
             case GameSound.TrapBlocked: clip = c.trapBlocked; break;
         }
         // Persistent source lets portal audio finish after the scene changes.
-        if (clip != null) instance.effects.PlayOneShot(clip, c.effectsVolume);
+        if (clip == null) return;
+        if (sound == GameSound.Pickup)
+        {
+            instance.pickupEffects.Stop();
+            instance.pickupEffects.clip = clip;
+            instance.pickupEffects.Play();
+        }
+        else instance.effects.PlayOneShot(clip);
     }
 
     public static void PlayBlockedIfTrap(Collider surface)

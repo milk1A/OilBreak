@@ -6,6 +6,8 @@ public class SettingsMenu : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private UnityEngine.UI.Slider musicSlider;
+    [SerializeField] private UnityEngine.UI.Slider effectsSlider;
 
     [Header("Restart")]
     [Tooltip("Name of the first scene, or the tutorial scene if the game starts there.")]
@@ -28,6 +30,18 @@ public class SettingsMenu : MonoBehaviour
         }
 
         settingsPanel.SetActive(false);
+        SetupSlider(musicSlider, GameAudio.MusicVolume, GameAudio.SetMusicVolume);
+        SetupSlider(effectsSlider, GameAudio.EffectsVolume, GameAudio.SetEffectsVolume);
+    }
+
+    private void SetupSlider(UnityEngine.UI.Slider slider, float value, UnityEngine.Events.UnityAction<float> callback)
+    {
+        if (slider == null) return;
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.wholeNumbers = false;
+        slider.SetValueWithoutNotify(value);
+        slider.onValueChanged.AddListener(callback);
     }
 
     private void Update()
@@ -64,6 +78,7 @@ public class SettingsMenu : MonoBehaviour
             return;
 
         isOpen = false;
+        PlayerPrefs.Save();
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
 
@@ -103,5 +118,11 @@ public class SettingsMenu : MonoBehaviour
     private void OnDisable()
     {
         CloseMenu();
+    }
+
+    private void OnDestroy()
+    {
+        if (musicSlider != null) musicSlider.onValueChanged.RemoveListener(GameAudio.SetMusicVolume);
+        if (effectsSlider != null) effectsSlider.onValueChanged.RemoveListener(GameAudio.SetEffectsVolume);
     }
 }

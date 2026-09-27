@@ -128,7 +128,8 @@ public class CenterAimController : MonoBehaviour
             if (button != null && button.CanPressFrom(aimCamera))
                 highlightedButton = button;
         }
-        Color color = canPickup || highlightedButton != null ? Color.green : Color.white;
+        bool canDrop = active && TryGetAimHit(GetAimRay(aimCamera), aimCamera.farClipPlane, out RaycastHit dropHit) && dropHit.collider.GetComponentInParent<BoxDropPlate>() is BoxDropPlate drop && drop.CanPress(aimCamera);
+        Color color = canPickup || highlightedButton != null || canDrop ? Color.green : Color.white;
         horizontalMark.color = verticalMark.color = color;
     }
 
