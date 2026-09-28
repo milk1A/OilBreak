@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: GameAudioConfig
   m_EditorClassIdentifier: 
   scenes:
+  - sceneName: Start_S
+    clip: {fileID: 8300000, guid: 7260829b8135b472e817c648b7ea4aa8, type: 3}
+  - sceneName: Ending_S
+    clip: {fileID: 8300000, guid: aac7cef1916c347b8849593e8473e54f, type: 3}
   - sceneName: F_Stage_1
     clip: {fileID: 8300000, guid: 430762c362fda4148b2be9997a6ba45d, type: 3}
   - sceneName: F_Stage_2
