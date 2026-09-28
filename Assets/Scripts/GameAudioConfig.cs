@@ -22,4 +22,5 @@ public class GameAudioConfig : ScriptableObject
     public AudioClip trapAppear;
     public AudioClip platePress;
     public AudioClip trapBlocked;
+    public AudioClip respawn;
 }

@@ -38,3 +38,4 @@ MonoBehaviour:
   trapAppear: {fileID: 8300000, guid: dab5334538c1bd646b6d4c82d03ff08e, type: 3}
   platePress: {fileID: 8300000, guid: 13923f00701444e40b3d61d198f1656f, type: 3}
   trapBlocked: {fileID: 8300000, guid: bb8e9aaf230e18d47ad958f33f870372, type: 3}
+  respawn: {fileID: 8300000, guid: 456ef5fff901d414983ce182cf7abbc7, type: 3}

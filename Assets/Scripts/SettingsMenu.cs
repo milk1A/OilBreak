@@ -18,6 +18,9 @@ public class SettingsMenu : MonoBehaviour
     private bool isLoading;
     private CursorLockMode previousCursorLock;
     private bool previousCursorVisible;
+    private Canvas menuRootCanvas;
+    private int previousRootOrder;
+    private float previousTimeScale;
 
     private void Awake()
     {
@@ -30,6 +33,13 @@ public class SettingsMenu : MonoBehaviour
         }
 
         settingsPanel.SetActive(false);
+        // Keep settings above the story overlay, including its clickable controls.
+        Canvas overlay = settingsPanel.GetComponent<Canvas>();
+        if (overlay == null) overlay = settingsPanel.AddComponent<Canvas>();
+        overlay.overrideSorting = true;
+        overlay.sortingOrder = 32767;
+        if (settingsPanel.GetComponent<UnityEngine.UI.GraphicRaycaster>() == null)
+            settingsPanel.AddComponent<UnityEngine.UI.GraphicRaycaster>();
         SetupSlider(musicSlider, GameAudio.MusicVolume, GameAudio.SetMusicVolume);
         SetupSlider(effectsSlider, GameAudio.EffectsVolume, GameAudio.SetEffectsVolume);
     }
@@ -66,8 +76,20 @@ public class SettingsMenu : MonoBehaviour
 
         previousCursorLock = Cursor.lockState;
         previousCursorVisible = Cursor.visible;
+        previousTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
         isOpen = true;
         settingsPanel.SetActive(true);
+        // Apply sorting while active, when Unity has resolved the parent canvas.
+        Canvas overlay = settingsPanel.GetComponent<Canvas>();
+        if (overlay != null)
+        {
+            menuRootCanvas = overlay.rootCanvas;
+            previousRootOrder = menuRootCanvas.sortingOrder;
+            menuRootCanvas.sortingOrder = 32767;
+            overlay.overrideSorting = true;
+            overlay.sortingOrder = 32767;
+        }
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -78,6 +100,10 @@ public class SettingsMenu : MonoBehaviour
             return;
 
         isOpen = false;
+        // Restore the existing pause too, when settings were opened over a cutscene.
+        Time.timeScale = previousTimeScale;
+        if (menuRootCanvas != null) menuRootCanvas.sortingOrder = previousRootOrder;
+        menuRootCanvas = null;
         PlayerPrefs.Save();
         if (settingsPanel != null)
             settingsPanel.SetActive(false);

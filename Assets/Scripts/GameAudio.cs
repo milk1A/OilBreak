@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum GameSound { Pickup, PutDown, Portal, TrapAppear, PlatePress, TrapBlocked, Wheel, CutsceneNext }
+public enum GameSound { Pickup, PutDown, Portal, TrapAppear, PlatePress, TrapBlocked, Wheel, CutsceneNext, Respawn }
 
 public class GameAudio : MonoBehaviour
 {
@@ -13,6 +13,33 @@ public class GameAudio : MonoBehaviour
     private AudioSource pickupEffects;
     private AudioSource cutsceneMusic;
     private AudioSource uiEffects;
+    private AudioSource bossCaughtEffects;
+
+    public static void PlayBossCaught(AudioClip clip)
+    {
+        if (instance == null) return;
+        instance.StopAllCoroutines();
+        instance.music.Stop();
+        instance.cutsceneMusic.Stop();
+        instance.cutsceneOwner = null;
+        instance.effects.Stop();
+        instance.pickupEffects.Stop();
+        instance.uiEffects.Stop();
+        instance.bossCaughtEffects.Stop();
+        if (clip == null)
+        {
+            Debug.LogWarning("Assign Caught Alarm on StageThreeRobotChase for the boss catch sound.");
+            return;
+        }
+        instance.bossCaughtEffects.clip = clip;
+        instance.bossCaughtEffects.volume = EffectsVolume;
+        instance.bossCaughtEffects.Play();
+    }
+
+    public static void StopBossCaught()
+    {
+        if (instance != null) instance.bossCaughtEffects.Stop();
+    }
     private Object cutsceneOwner;
     public static void BeginCutsceneMusic(Object owner, AudioClip clip)
     {
@@ -72,6 +99,11 @@ public class GameAudio : MonoBehaviour
         uiEffects.ignoreListenerPause = true;
         uiEffects.volume = EffectsVolume;
         pickupEffects = gameObject.AddComponent<AudioSource>();
+        bossCaughtEffects = gameObject.AddComponent<AudioSource>();
+        bossCaughtEffects.playOnAwake = false;
+        bossCaughtEffects.loop = false;
+        bossCaughtEffects.spatialBlend = 0f;
+        bossCaughtEffects.ignoreListenerPause = true;
         pickupEffects.playOnAwake = false;
         pickupEffects.loop = false;
         pickupEffects.spatialBlend = 0f;
@@ -86,6 +118,7 @@ public class GameAudio : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (mode == LoadSceneMode.Additive) return;
+        StopBossCaught();
         music.Stop();
         StopAllCoroutines();
         StartCoroutine(StartSceneAudio(scene));
@@ -124,6 +157,7 @@ public class GameAudio : MonoBehaviour
             case GameSound.TrapAppear: clip = c.trapAppear; break;
             case GameSound.PlatePress: clip = c.platePress; break;
             case GameSound.TrapBlocked: clip = c.trapBlocked; break;
+            case GameSound.Respawn: clip = c.respawn; break;
         }
         // Persistent source lets portal audio finish after the scene changes.
         if (clip == null)

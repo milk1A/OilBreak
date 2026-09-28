@@ -11,6 +11,7 @@ public class TutorialGuide : MonoBehaviour
     [SerializeField] private Transform player;
 
     [Header("Messages")]
+    [SerializeField] private bool showBoxMessage = true;
     [TextArea(2, 5)]
     [SerializeField] private string movementMessage = "WASD로 움직여 보세요.";
     [TextArea(2, 5)]
@@ -72,7 +73,7 @@ public class TutorialGuide : MonoBehaviour
 
     public void ShowBoxGuide()
     {
-        if (!isActiveAndEnabled || step == Step.Box) return;
+        if (!showBoxMessage || !isActiveAndEnabled || step == Step.Box) return;
         step = Step.Box;
         ShowMessage(boxMessage);
     }

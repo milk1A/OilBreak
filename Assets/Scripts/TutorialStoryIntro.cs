@@ -107,7 +107,7 @@ public class TutorialStoryIntro : MonoBehaviour
         Canvas overlay = storyPanel.GetComponent<Canvas>();
         if (overlay == null) overlay = storyPanel.AddComponent<Canvas>();
         overlay.overrideSorting = true;
-        overlay.sortingOrder = 32767;
+        overlay.sortingOrder = 32766;
         if (storyPanel.GetComponent<GraphicRaycaster>() == null)
             storyPanel.AddComponent<GraphicRaycaster>();
         Image background = storyPanel.GetComponent<Image>();
@@ -133,8 +133,7 @@ public class TutorialStoryIntro : MonoBehaviour
             if (behaviour.gameObject.scene != gameObject.scene || !behaviour.enabled) continue;
             if (behaviour is StarterAssets.ThirdPersonController || behaviour is PlayerMovement ||
                 behaviour is BoxPickUp || behaviour is MouseOrbitCamera ||
-                behaviour is TutorialGuide || behaviour is TutorialBoxGuideTrigger ||
-                behaviour is SettingsMenu)
+                behaviour is TutorialGuide || behaviour is TutorialBoxGuideTrigger)
             {
                 pausedBehaviours.Add(behaviour);
                 behaviour.enabled = false;
@@ -153,6 +152,7 @@ public class TutorialStoryIntro : MonoBehaviour
     public void NextSlide()
     {
         if (!introActive || !UsesSlides || finishing) return;
+        if (SettingsAreOpen()) return;
         if (lastAdvanceFrame == Time.frameCount) return;
         lastAdvanceFrame = Time.frameCount;
         GameAudio.Play(GameSound.CutsceneNext);
@@ -166,6 +166,14 @@ public class TutorialStoryIntro : MonoBehaviour
             StartCoroutine(FinishAfterClick());
         }
     }
+
+    private bool SettingsAreOpen()
+    {
+        foreach (SettingsMenu menu in FindObjectsByType<SettingsMenu>(FindObjectsSortMode.None))
+            if (menu.gameObject.scene == gameObject.scene && menu.IsOpen) return true;
+        return false;
+    }
+
 
     private IEnumerator FinishAfterClick()
     {

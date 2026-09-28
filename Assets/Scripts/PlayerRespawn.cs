@@ -8,6 +8,7 @@ public class PlayerRespawn : MonoBehaviour
     [Header("Box")]
     [SerializeField] private BoxPickUp boxPickUp;
 
+    private int lastRespawnFrame = -1;
     private Rigidbody rb;
     private CharacterController characterController;
 
@@ -36,11 +37,18 @@ public class PlayerRespawn : MonoBehaviour
 
     public void Respawn()
     {
+        if (lastRespawnFrame == Time.frameCount) return;
         if (respawnPoint == null)
         {
             Debug.LogError("Assign Respawn Point on PlayerRespawn.", this);
             return;
         }
+
+        lastRespawnFrame = Time.frameCount;
+#if UNITY_EDITOR
+        Debug.Log("[RespawnTrace] Player respawn: " + transform.position + " -> " + respawnPoint.position, this);
+#endif
+        GameAudio.Play(GameSound.Respawn);
 
         // 플레이어가 죽으면 모든 박스 초기화
         if (boxPickUp != null)

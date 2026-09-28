@@ -213,10 +213,7 @@ public class StageThreeRobotChase : MonoBehaviour
         if (navigationAgent != null && navigationAgent.isOnNavMesh) navigationAgent.isStopped = true;
         moving = false;
         chaseAudio.Stop();
-        chaseAudio.clip = caughtAlarm;
-        chaseAudio.loop = true;
-        chaseAudio.volume = GameAudio.EffectsVolume;
-        if (caughtAlarm != null) chaseAudio.Play();
+        GameAudio.PlayBossCaught(caughtAlarm);
         if (animationGraph.IsValid()) animationClip.SetSpeed(0);
         // Keep the cursor available for the restart button.
         foreach (var camera in FindObjectsByType<MouseOrbitCamera>())
@@ -276,6 +273,7 @@ public class StageThreeRobotChase : MonoBehaviour
     private void StopChaseAudio()
     {
         restarting = true;
+        GameAudio.StopBossCaught();
         if (chaseAudio != null) chaseAudio.Stop();
     }
 

@@ -75,6 +75,9 @@ public class GameOverController : MonoBehaviour
             return;
 
         isGameOverStarted = true;
+#if UNITY_EDITOR
+        Debug.Log("[GameOverTrace] Game over requested. Caller:\n" + new System.Diagnostics.StackTrace(1, true), this);
+#endif
 
         // 혹시 아직 이동이 안 잠겼다면 잠금
         LockPlayer();
