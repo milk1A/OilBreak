@@ -8,6 +8,9 @@ public class TutorialStoryIntro : MonoBehaviour
 {
     [Header("Playback")]
     [SerializeField] private bool playOnAwake = true;
+    [Tooltip("Loops during this cutscene. Leave empty to keep the scene music.")]
+    [SerializeField] private AudioClip cutsceneMusic;
+    private int lastAdvanceFrame = -1;
     private string destinationScene;
     [Header("Story UI")]
     [SerializeField] private GameObject storyPanel;
@@ -123,6 +126,7 @@ public class TutorialStoryIntro : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         introActive = true;
+        GameAudio.BeginCutsceneMusic(this, cutsceneMusic);
         Time.timeScale = 0f;
         foreach (MonoBehaviour behaviour in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
         {
@@ -149,6 +153,9 @@ public class TutorialStoryIntro : MonoBehaviour
     public void NextSlide()
     {
         if (!introActive || !UsesSlides || finishing) return;
+        if (lastAdvanceFrame == Time.frameCount) return;
+        lastAdvanceFrame = Time.frameCount;
+        GameAudio.Play(GameSound.CutsceneNext);
         slideIndex++;
         if (slideIndex < slides.Length)
             cutsceneImage.sprite = slides[slideIndex];
@@ -180,6 +187,7 @@ public class TutorialStoryIntro : MonoBehaviour
     {
         if (!introActive) return;
         introActive = false;
+        GameAudio.EndCutsceneMusic(this);
         if (storyPanel != null) storyPanel.SetActive(false);
         Time.timeScale = previousTimeScale;
         Cursor.lockState = previousCursorLock;

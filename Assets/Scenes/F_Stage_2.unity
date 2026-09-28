@@ -6236,6 +6236,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialStoryIntro
   playOnAwake: 0
+  cutsceneMusic: {fileID: 8300000, guid: 4d14cc9dd6b089f4989fe76b1015081d, type: 3}
   storyPanel: {fileID: 2030124939}
   storyText: {fileID: 0}
   storyMessage: "\uC5EC\uAE30\uC5D0 \uC2A4\uD1A0\uB9AC \uC124\uBA85\uC744 \uC785\uB825\uD558\uC138\uC694."

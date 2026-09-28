@@ -2490,6 +2490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialStoryIntro
   playOnAwake: 0
+  cutsceneMusic: {fileID: 8300000, guid: cd9cbabbef6a6ea47931a444b07c1fb2, type: 3}
   storyPanel: {fileID: 982789348}
   storyText: {fileID: 0}
   storyMessage: "\uC5EC\uAE30\uC5D0 \uC2A4\uD1A0\uB9AC \uC124\uBA85\uC744 \uC785\uB825\uD558\uC138\uC694."
@@ -3606,7 +3607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimplePortalExit
   nextSceneName: F_Stage_2
-  exitCutscene: {fileID: 0}
+  exitCutscene: {fileID: 483133126}
 --- !u!65 &725761332
 BoxCollider:
   m_ObjectHideFlags: 0

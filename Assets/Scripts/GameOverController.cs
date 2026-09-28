@@ -19,6 +19,7 @@ public class GameOverController : MonoBehaviour
 
     private bool isPlayerLocked = false;
     public bool IsPlayerLocked => isPlayerLocked;
+    public event System.Action RestartRequested;
     private bool isGameOverStarted = false;
     private bool isRestarting = false;
 
@@ -113,6 +114,7 @@ public class GameOverController : MonoBehaviour
             return;
 
         isRestarting = true;
+        RestartRequested?.Invoke();
 
         StartCoroutine(RestartSceneRoutine());
     }
