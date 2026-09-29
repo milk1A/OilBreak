@@ -15,6 +15,9 @@ public class StageThreeFinalTrap : MonoBehaviour
     [SerializeField, Min(1f)] private float spawnHeight = 5f;
     [UnityEngine.Serialization.FormerlySerializedAs("restartDelay")]
     [SerializeField, Min(0.1f)] private float bombFallWait = 2f;
+    [Header("Bomb Drop Audio")]
+    [SerializeField] private AudioClip bombDropSound;
+    private AudioSource bombDropAudio;
     [Header("Sliding Door")]
     [SerializeField] private Transform leftDoor;
     [SerializeField] private Transform rightDoor;
@@ -120,6 +123,7 @@ public class StageThreeFinalTrap : MonoBehaviour
     private void Update()
     {
         if (doorAudio != null) doorAudio.volume = GameAudio.EffectsVolume;
+        if (bombDropAudio != null) bombDropAudio.volume = GameAudio.EffectsVolume;
     }
 
     private Transform PlayerInside(BoxCollider area, float extraHeight)
@@ -157,7 +161,16 @@ public class StageThreeFinalTrap : MonoBehaviour
         body.linearVelocity = Vector3.zero;
         body.angularVelocity = Vector3.zero;
         body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        GameAudio.Play(GameSound.TrapAppear);
+        if (bombDropSound != null)
+        {
+            bombDropAudio = gameObject.AddComponent<AudioSource>();
+            bombDropAudio.playOnAwake = false;
+            bombDropAudio.loop = false;
+            bombDropAudio.spatialBlend = 0f;
+            bombDropAudio.volume = GameAudio.EffectsVolume;
+            bombDropAudio.clip = bombDropSound;
+            bombDropAudio.Play();
+        }
         yield return new WaitForSeconds(bombFallWait);
         gameOverController.TriggerGameOver();
     }

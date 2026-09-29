@@ -6504,6 +6504,7 @@ MonoBehaviour:
   plateExtraHeight: 0.5
   spawnHeight: 5
   bombFallWait: 1
+  bombDropSound: {fileID: 8300000, guid: dd6de0fa9bd0f8d4586cbcfbb1c16c1a, type: 3}
   leftDoor: {fileID: 1532053800}
   rightDoor: {fileID: 1881666314}
   doorSlideDistance: 2.1
