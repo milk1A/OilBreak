@@ -14,6 +14,8 @@ public class PlayerRespawn : MonoBehaviour
 
     private void Awake()
     {
+        if (GetComponent<PlayerOutOfBoundsRecovery>() == null)
+            gameObject.AddComponent<PlayerOutOfBoundsRecovery>();
         rb = GetComponent<Rigidbody>();
         characterController = GetComponent<CharacterController>();
     }
