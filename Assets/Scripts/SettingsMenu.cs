@@ -80,6 +80,8 @@ public class SettingsMenu : MonoBehaviour
         Time.timeScale = 0f;
         isOpen = true;
         settingsPanel.SetActive(true);
+        if (musicSlider != null) musicSlider.SetValueWithoutNotify(GameAudio.MusicVolume);
+        if (effectsSlider != null) effectsSlider.SetValueWithoutNotify(GameAudio.EffectsVolume);
         // Apply sorting while active, when Unity has resolved the parent canvas.
         Canvas overlay = settingsPanel.GetComponent<Canvas>();
         if (overlay != null)

@@ -31,8 +31,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: d27464c608920f64fb3d031ca45884f8, type: 3}
   - sceneName: F_Tutorial
     clip: {fileID: 8300000, guid: c6f85140af388924da297e372b24dc20, type: 3}
-  musicVolume: 0.35
-  effectsVolume: 0.8
+  musicVolume: 0.25
+  effectsVolume: 0.5
   stageStart: {fileID: 8300000, guid: 7773298842836184994715543c8ed4e7, type: 3}
   pickup: {fileID: 8300000, guid: 25777c4fec9a830449ddc69fe25a85da, type: 3}
   putDown: {fileID: 8300000, guid: 1f9983ccc3c71854eb184101c50f355d, type: 3}

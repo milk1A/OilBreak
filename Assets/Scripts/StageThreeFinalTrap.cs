@@ -161,6 +161,14 @@ public class StageThreeFinalTrap : MonoBehaviour
         body.linearVelocity = Vector3.zero;
         body.angularVelocity = Vector3.zero;
         body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        var impact = bomb.AddComponent<BombPlayerImpactSound>();
+        impact.Initialize(player, PlayBombImpactSound);
+        yield return new WaitForSeconds(bombFallWait);
+        gameOverController.TriggerGameOver();
+    }
+
+    private void PlayBombImpactSound()
+    {
         if (bombDropSound != null)
         {
             bombDropAudio = gameObject.AddComponent<AudioSource>();
@@ -171,7 +179,5 @@ public class StageThreeFinalTrap : MonoBehaviour
             bombDropAudio.clip = bombDropSound;
             bombDropAudio.Play();
         }
-        yield return new WaitForSeconds(bombFallWait);
-        gameOverController.TriggerGameOver();
     }
 }

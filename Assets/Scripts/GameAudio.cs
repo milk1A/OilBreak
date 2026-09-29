@@ -7,6 +7,8 @@ public enum GameSound { Pickup, PutDown, Portal, TrapAppear, PlatePress, TrapBlo
 public class GameAudio : MonoBehaviour
 {
     private static GameAudio instance;
+    private static float sessionMusicVolume = 0.25f;
+    private static float sessionEffectsVolume = 0.5f;
     private GameAudioConfig config;
     private AudioSource music;
     private AudioSource effects;
@@ -57,26 +59,38 @@ public class GameAudio : MonoBehaviour
         instance.cutsceneMusic.Stop();
         instance.music.UnPause();
     }
-    public static float MusicVolume => PlayerPrefs.GetFloat("MusicVolume", instance != null && instance.config != null ? instance.config.musicVolume : 0.35f);
-    public static float EffectsVolume => PlayerPrefs.GetFloat("EffectsVolume", instance != null && instance.config != null ? instance.config.effectsVolume : 0.8f);
+    public static float MusicVolume => sessionMusicVolume;
+    public static float EffectsVolume => sessionEffectsVolume;
     public static void SetMusicVolume(float value)
     {
-        PlayerPrefs.SetFloat("MusicVolume", Mathf.Clamp01(value));
+        sessionMusicVolume = Mathf.Clamp01(value);
         if (instance != null) instance.music.volume = instance.cutsceneMusic.volume = MusicVolume;
     }
     public static void SetEffectsVolume(float value)
     {
-        PlayerPrefs.SetFloat("EffectsVolume", Mathf.Clamp01(value));
-        if (instance != null) instance.effects.volume = instance.pickupEffects.volume = instance.uiEffects.volume = EffectsVolume;
+        sessionEffectsVolume = Mathf.Clamp01(value);
+        if (instance != null) instance.effects.volume = instance.pickupEffects.volume = instance.uiEffects.volume = instance.bossCaughtEffects.volume = EffectsVolume;
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetStatics() { instance = null; }
+    private static void ResetStatics()
+    {
+        instance = null;
+        sessionMusicVolume = 0.25f;
+        sessionEffectsVolume = 0.5f;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
         if (instance != null) return;
+        // Initialize once per application run, never on scene changes.
+        var defaults = Resources.Load<GameAudioConfig>("GameAudioConfig");
+        if (defaults != null)
+        {
+            sessionMusicVolume = Mathf.Clamp01(defaults.musicVolume);
+            sessionEffectsVolume = Mathf.Clamp01(defaults.effectsVolume);
+        }
         new GameObject("Game Audio").AddComponent<GameAudio>();
     }
 
